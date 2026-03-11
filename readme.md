@@ -227,6 +227,33 @@ Output shape:
 
 ---
 
+## 13. Demo: Tiny Character-Level LLM
+
+To show a working mini-LLM based on this Transformer:
+
+- **1. Add training text**
+  - Create a file `random.txt` in this folder with some paragraphs of text (any topic).
+
+- **2. Train the tiny model**
+  ```bash
+  source .venv/bin/activate
+  python train_char_lm.py
+  ```
+  - This will:
+    - Build a character vocabulary from `random.txt`.
+    - Train a tiny decoder-only Transformer as a character-level language model.
+    - Save weights to `tiny_llm.pt` and the vocabulary to `vocab.json`.
+
+- **3. Generate text for the demo**
+  ```bash
+  python generate.py --prompt "The " --tokens 100
+  ```
+  - This loads `tiny_llm.pt` and prints a continuation of your prompt, showing the model working end-to-end.
+
+You can show your teacher:
+- The **training loss decreasing** from `train_char_lm.py`.
+- The **generated text** from `generate.py` as proof that the mini Transformer is acting like a small LLM on your custom text.
+
 ## 12. Quick Reference – Symbols and Terms
 
 - \( V \): vocabulary, \(|V|\) its size  
