@@ -11,7 +11,12 @@ from mini_transformer import build_tiny_decoder_only_transformer
 VOCAB_FILE = "vocab.json"
 MODEL_FILE = "tiny_llm.pt"
 BLOCK_SIZE = 64
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DEFAULT_TEMPERATURE = 0.8
+DEVICE = (
+    "cuda" if torch.cuda.is_available()
+    else "mps" if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available()
+    else "cpu"
+)
 
 
 def load_vocab(path: str) -> Dict[str, Dict]:
@@ -33,7 +38,7 @@ def decode(ids: torch.Tensor, itos: Dict[int, str]) -> str:
 
 
 @torch.no_grad()
-def generate_text(prompt: str, max_new_tokens: int) -> str:
+def generate_text(prompt: str, max_new_tokens: int, temperature: float = DEFAULT_TEMPERATURE) -> str:
     if not Path(VOCAB_FILE).exists() or not Path(MODEL_FILE).exists():
         raise FileNotFoundError(
             "Model or vocab not found. Run train_char_lm.py first to create tiny_llm.pt and vocab.json."
@@ -63,6 +68,7 @@ def generate_text(prompt: str, max_new_tokens: int) -> str:
 
         logits = model(x_cond)  # (1, seq_len, vocab_size)
         last_logits = logits[:, -1, :]  # (1, vocab_size)
+        last_logits = last_logits / temperature
         probs = torch.softmax(last_logits, dim=-1)
 
         next_id = torch.multinomial(probs, num_samples=1)  # (1, 1)
@@ -75,11 +81,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate text with tiny decoder-only Transformer")
     parser.add_argument("--prompt", type=str, default="The ", help="Prompt string to start generation")
     parser.add_argument("--tokens", type=int, default=100, help="Number of new tokens to generate")
+    parser.add_argument("--temperature", type=float, default=DEFAULT_TEMPERATURE, help="Sampling temperature (default 0.8)")
     args = parser.parse_args()
 
     print(f"Using device: {DEVICE}")
-    print(f"Prompt: {repr(args.prompt)}")
-    text = generate_text(args.prompt, args.tokens)
+    print(f"Prompt: {repr(args.prompt)}, temperature: {args.temperature}")
+    text = generate_text(args.prompt, args.tokens, temperature=args.temperature)
     print("\n=== Generated Text ===\n")
     print(text)
 
