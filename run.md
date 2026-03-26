@@ -8,7 +8,7 @@ pip install -r requirements.txt
 # - writes processed files to data/processed/
 # - trains SentencePiece tokenizer to artifacts/tokenizer.model
 # - trains model and saves best checkpoint to artifacts/tiny_llm.pt
-python scripts/train.py
+python3 scripts/train.py    
 
 # Generate one response
 python scripts/generate.py --prompt "hi" --tokens 80 --temperature 0.8 --top-k 40

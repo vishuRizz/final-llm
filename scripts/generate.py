@@ -1,4 +1,10 @@
 import argparse
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.mini_llm.infer import generate_reply
 from src.mini_llm.runtime import pick_device
