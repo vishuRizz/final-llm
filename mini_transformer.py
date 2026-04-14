@@ -1,4 +1,5 @@
-from src.mini_llm.model import build_tiny_decoder_only_transformer
+import math
+from typing import Optional
 
 import torch
 import torch.nn as nn

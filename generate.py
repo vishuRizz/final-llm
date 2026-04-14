@@ -61,10 +61,7 @@ def generate_text(prompt: str, max_new_tokens: int, temperature: float = DEFAULT
 
     for _ in range(max_new_tokens):
         seq_len = x.size(1)
-        if seq_len > BLOCK_SIZE:
-            x_cond = x[:, -BLOCK_SIZE:]
-        else:
-            x_cond = x
+        x_cond = x[:, -BLOCK_SIZE:] if seq_len > BLOCK_SIZE else x
 
         logits = model(x_cond)  # (1, seq_len, vocab_size)
         last_logits = logits[:, -1, :]  # (1, vocab_size)

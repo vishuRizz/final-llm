@@ -19,8 +19,8 @@ MODEL_FILE = ARTIFACTS_DIR / "tiny_llm.pt"
 TOKENIZER_MODEL = ARTIFACTS_DIR / "tokenizer.model"
 TRAINED_CONFIG = ARTIFACTS_DIR / "training_config.json"
 
-BLOCK_SIZE = 128
-BATCH_SIZE = 32
+BLOCK_SIZE = 256
+BATCH_SIZE = 64
 NUM_STEPS = 12000
 LEARNING_RATE = 3e-4
 WEIGHT_DECAY = 0.05
@@ -87,8 +87,6 @@ def estimate_loss(
         if i + 1 >= eval_batches:
             break
     model.train()
-    if not losses:
-        return float("inf")
     return sum(losses) / len(losses)
 
 

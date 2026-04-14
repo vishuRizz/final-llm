@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 .DS_Store
 .venv/
+venv/
 
 # Generated data and training artifacts
 data/processed/

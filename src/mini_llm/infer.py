@@ -10,7 +10,7 @@ from .tokenizer_utils import decode_ids, encode_text, load_tokenizer
 ARTIFACTS_DIR = Path("artifacts")
 TOKENIZER_MODEL = ARTIFACTS_DIR / "tokenizer.model"
 MODEL_FILE = ARTIFACTS_DIR / "tiny_llm.pt"
-BLOCK_SIZE = 128
+BLOCK_SIZE = 256
 
 
 def load_model_and_tokenizer() -> tuple[torch.nn.Module, object, str]:

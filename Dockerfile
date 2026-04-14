@@ -1,5 +1,4 @@
-# Mini-LLM training image — Linux + Python + CPU PyTorch (works on Windows/macOS/Linux via Docker)
-FROM python:3.11-slim-bookworm
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -7,11 +6,24 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# CPU-only PyTorch + SentencePiece (matches requirements.txt without conflicting torch sources)
-RUN pip install torch --index-url https://download.pytorch.org/whl/cpu \
- && pip install sentencepiece
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+COPY requirements.txt .
+
+RUN pip install --upgrade pip==24.3.1
+
+# Install PyTorch separately (important)
+RUN pip install torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cu121
+
+RUN pip install -r requirements.txt
 
 COPY . .
 
-# Default: run training (override with docker run ... python scripts/generate.py ...)
 CMD ["python", "scripts/train.py"]
