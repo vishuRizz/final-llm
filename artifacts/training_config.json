@@ -1,0 +1,15 @@
+{
+  "block_size": 256,
+  "batch_size": 64,
+  "num_steps": 12000,
+  "learning_rate": 0.0003,
+  "weight_decay": 0.05,
+  "warmup_steps": 800,
+  "max_grad_norm": 1.0,
+  "label_smoothing": 0.05,
+  "vocab_size": 3000,
+  "tokenizer_model": "artifacts\\tokenizer.model",
+  "best_val_loss": 2.5108734250068663,
+  "test_loss": 2.6256374955177306,
+  "device": "cuda"
+}

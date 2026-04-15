@@ -6,4 +6,3 @@ venv/
 
 # Generated data and training artifacts
 data/processed/
-artifacts/
