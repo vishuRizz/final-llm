@@ -157,9 +157,11 @@ def stream_reply(prompt: str, max_new_tokens: int, temperature: float, top_k: in
 
     model, sp, device = load_inference_engine()
 
-    wrapped = f"<|user|> {prompt}\\n<|assistant|>"
+    wrapped = f"<|user|> {prompt}\n<|assistant|>"
     token_ids = encode_text(sp, wrapped)
     x = torch.tensor(token_ids, dtype=torch.long).unsqueeze(0).to(device)
+
+    generated_ids = []
 
     for _ in range(max_new_tokens):
         x_cond = x[:, -BLOCK_SIZE:] if x.size(1) > BLOCK_SIZE else x
@@ -173,11 +175,15 @@ def stream_reply(prompt: str, max_new_tokens: int, temperature: float, top_k: in
         next_id = torch.multinomial(probs, num_samples=1)
         x = torch.cat([x, next_id], dim=1)
         
-        token = decode_ids(sp, [next_id.item()])
-        yield token
-        # Stop token heuristic checking just <|user|> or similar might be useful
-        # if the model learned proper stopping, but for now we'll just yield.
-
+        generated_ids.append(next_id.item())
+        current_text = decode_ids(sp, generated_ids)
+        
+        if "<|user|>" in current_text or "<|assistant|>" in current_text:
+            current_text = current_text.replace("<|user|>", "").replace("<|assistant|>", "").strip()
+            yield current_text
+            break
+            
+        yield current_text
 
 # ── UI Layout ─────────────────────────────────────────────────────────────────
 
@@ -268,8 +274,8 @@ if prompt := st.chat_input("Type your message..."):
     
     with st.spinner("Thinking..."):
         try:
-            for chunk in stream_reply(prompt, max_tokens, temperature, top_k):
-                full_reply += chunk
+            for current_text in stream_reply(prompt, max_tokens, temperature, top_k):
+                full_reply = current_text
                 reply_container.markdown(f'<div class="chat-assistant">{full_reply}▌</div>', unsafe_allow_html=True)
                 time.sleep(0.01)  # small pause for visual effect
             
